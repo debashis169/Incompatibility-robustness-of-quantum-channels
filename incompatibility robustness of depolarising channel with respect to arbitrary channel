@@ -1,0 +1,40 @@
+% incompatibility robustness graph for qubit Depolarising dynamical channel
+d=2; % input dimension
+N = 100; % no of time (t) intervals
+T = zeros(N,2); % to store t and robustness (r)
+
+for j=1:1:N
+    t = (j-1)*0.01; % define time (t)
+    % define the choi matrix for the channel - Phi1a
+    chi = 0.5; om = 5*pi;  % time-dependent depolarising channel
+    %A = exp(-chi*t)*cos(om*t)^2; % time-dependent
+    A = exp(-chi*t);  % constant depolarising channel
+    Phi1a = [(1+A)/2 0 0 A; 0 (1-A)/2 0 0; 0 0 (1-A)/2 0; A 0 0 (1+A)/2];
+    % define the channel with which the incompatibiltiy will be computed - self
+    Phi2a = Phi1a;
+
+for k=1:1:101
+    r=(k-1)*0.005; % interval of the robustness parameter r
+    q = sdpvar(1,1,'hermitian','real'); % define a sdp variable
+    G = sdpvar(d^3,d^3,'hermitian','complex'); % define a sdp variable for the joint channel
+    Phi1n = sdpvar(d^2,d^2,'hermitian','complex'); % define a sdp varibale for the arbitrary noise channel of Phi1a
+    Phi2n = sdpvar(d^2,d^2,'hermitian','complex'); % define a sdp varibale for the arbitrary noise channel of Phi1b
+    % channels after mixing with the noise
+    Phi1 = (Phi1a + r*Phi1n)/(1+r); Phi2 = (Phi2a + r*Phi2n)/(1+r);
+    % define the constraints of the optimization given by Eq.(34)
+    Cons = [PartialTrace(G,3,[d,d,d]) == Phi1; PartialTrace(G,2,[d,d,d]) == Phi2; G >= q*eye(d^3); ...
+    Phi1n >= 0; Phi2n >=0; PartialTrace(Phi1n,2,[d,d]) == eye(2); PartialTrace(Phi2n,2,[d,d]) == eye(2)];
+
+
+    ops = sdpsettings('solver','sdpt3','verbose',0); % deifne the specifications of the solver
+ 
+    optimize(Cons,-real(q),ops); % obtain the maximum value of q
+    if value(q) >= 0
+        T(j,:) = [t r]; % store the value of r if q >= 0 and go for next value of t
+        break
+    end
+end
+end
+plot(T(:,1),T(:,2),"*")
+xlabel('t') 
+ylabel('Robustness') 
