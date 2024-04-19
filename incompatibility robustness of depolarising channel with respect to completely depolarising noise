@@ -28,9 +28,9 @@ for k=1:1:101
 
     ops = sdpsettings('solver','sdpt3','verbose',0); % deifne the specifications of the solver
  
-    optimize(Cons,-real(q),ops);  % obtain the maximum value of q
+    optimize(Cons,-real(q),ops);  % obtain the maximum value of q 
     if value(q) >= 0
-        T(j,:) = [t r]; % store the value of r if q >= 0
+        T(j,:) = [t r]; % store the value of r if q >= 0 and go to next value of t
         break
     end
 end
