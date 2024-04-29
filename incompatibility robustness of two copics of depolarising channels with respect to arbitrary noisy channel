@@ -7,8 +7,8 @@ for j=1:1:N
     t = (j-1)*0.01; % define time (t)
     % define the choi matrix for the channel - Phi1a
     chi = 0.5; om = 5*pi;  % time-dependent depolarising channel
-    %A = exp(-chi*t)*cos(om*t)^2; % time-dependent
-    A = exp(-chi*t);  % constant depolarising channel
+    A = exp(-chi*t)*cos(om*t)^2; % time-dependent
+    %A = exp(-chi*t);  % constant depolarising channel
     Phi1a = [(1+A)/2 0 0 A; 0 (1-A)/2 0 0; 0 0 (1-A)/2 0; A 0 0 (1+A)/2];
     % define the channel with which the incompatibiltiy will be computed - self
     Phi2a = Phi1a;
